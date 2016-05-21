@@ -49,3 +49,6 @@ score         | string    | not null
  - add upcoming tournaments
 - `POST api/challonge`
  - adds all relevant challonge data for a tournament
+
+
+##MVP
