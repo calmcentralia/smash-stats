@@ -15,12 +15,15 @@ class ApplicationController < ActionController::Base
       player2 = match_hash["match"]["player2_id"]
       player1 = participants[player1]
       player2 = participants[player2]
+      player1 = normalize_name(player1)
+      player2 = normalize_name(player2)
       player1 = find_player_by_name(player1)
       player2 = find_player_by_name(player2)
       score = match_hash["match"]["score_csv"]
       player1_games, player2_games = score.split("-")
       match = Match.new(tournament_id: tournament.id, player1_id: player1.id, player2_id: player2.id, player1_games_won: player1_games.to_i, player2_games_won: player2_games.to_i)
       match.save
+      update_skill(player1, player2)
   end
 
   def create_participant_hash(participants)
@@ -31,7 +34,12 @@ class ApplicationController < ActionController::Base
     participant_hash
   end
 
+  def normalize_name(name)
+    
+  end
+
   def update_skill(player1, player2)
+
   end
 
   def find_name(player_name)
@@ -45,10 +53,6 @@ class ApplicationController < ActionController::Base
       name.save
       player
     end
-  end
-
-  def new_player(name)
-
   end
 
 
