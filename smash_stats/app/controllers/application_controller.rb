@@ -2,6 +2,7 @@ class ApplicationController < ActionController::Base
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
+  SPONSORS = [ "ESE", "NP", "HT", "ID", "3G", "BoA", "VAG"]
 
   def parse_challonge(data)
     tournament = Tournament.find_by_title(data["tournament"]["name"])
@@ -35,7 +36,13 @@ class ApplicationController < ActionController::Base
   end
 
   def normalize_name(name)
-    
+    name = compare_against_sponsor_list(name)
+    shed_sponsor = name.split("|")
+    name = shed_sponsor.last if shed_sponsor.length > 1
+    shed_sponsor = name.split(" l ")
+    name = shed_sponsor.last if shed_sponsor.length > 1
+    name.capitalize!
+    name.split.map(&:capitalize).join(" ")
   end
 
   def update_skill(player1, player2)
@@ -53,6 +60,15 @@ class ApplicationController < ActionController::Base
       name.save
       player
     end
+  end
+
+  def compare_against_sponsor_list(name)
+    SPONSORS.each do |sponsor|
+      if sponsor = name[0...sponsor.length]
+        name = name[sponsor.length..-1]
+      end
+    end
+    name
   end
 
 
