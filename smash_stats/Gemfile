@@ -17,6 +17,7 @@ gem 'pry-rails'
 gem 'http'
 gem 'challonge-api'
 gem 'json'
+gem 'active_record_union'
 # Use jquery as the JavaScript library
 gem 'jquery-rails'
 # Turbolinks makes following links in your web application faster. Read more: https://github.com/rails/turbolinks

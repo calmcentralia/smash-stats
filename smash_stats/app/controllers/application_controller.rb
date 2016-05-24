@@ -16,6 +16,8 @@ class ApplicationController < ActionController::Base
       player2 = match_hash["match"]["player2_id"]
       player1 = participants[player1]
       player2 = participants[player2]
+      player1 = compare_against_sponsor_list(player1)
+      player2 = compare_against_sponsor_list(player2)
       player1 = normalize_name(player1)
       player2 = normalize_name(player2)
       player1 = find_player_by_name(player1)
