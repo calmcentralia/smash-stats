@@ -24,7 +24,8 @@ class ApplicationController < ActionController::Base
       player1_games, player2_games = score.split("-")
       match = Match.new(tournament_id: tournament.id, player1_id: player1.id, player2_id: player2.id, player1_games_won: player1_games.to_i, player2_games_won: player2_games.to_i)
       match.save
-      update_skill(player1, player2)
+    end
+    tournament.update_skill
   end
 
   def create_participant_hash(participants)
@@ -43,10 +44,6 @@ class ApplicationController < ActionController::Base
     name = shed_sponsor.last if shed_sponsor.length > 1
     name.capitalize!
     name.split.map(&:capitalize).join(" ")
-  end
-
-  def update_skill(player1, player2)
-
   end
 
   def find_name(player_name)

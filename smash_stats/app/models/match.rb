@@ -7,8 +7,6 @@ class Match < ActiveRecord::Base
     foreign_key: :player2_id,
     class_name: "Player"
 
-  belongs_to :tournament
-
   def both_players
     Player.where(id: [self.player1_id, self.player2_id])
   end
