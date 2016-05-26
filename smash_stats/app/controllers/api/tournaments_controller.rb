@@ -1,5 +1,7 @@
 class Api::TournamentsController < ApplicationController
   def index
+    if [:parameters][:flag] == recent
+      Tournament.order(:updated_at).where
     render json: Tournament.order(:event_time)
   end
 

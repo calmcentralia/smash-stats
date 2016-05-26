@@ -1,4 +1,4 @@
-var React = require('react');
+ var React = require('react');
 var ApiUtil = require('../util/api_util');
 var hashHistory = require('react-router').hashHistory;
 var TournamentStore = require('../stores/tournament');
@@ -7,7 +7,7 @@ var Splash = React.createClass( {
   getInitialState: function() {
     return {
       recentTournamentsAdded: [],
-      news: NewsStore.all()
+      news: NewsStore.recent()
     };
   },
 
