@@ -21,8 +21,8 @@ class Tournament < ActiveRecord::Base
             score = 0
           end
         end
-
-
+      end
+    end
   end
 
   def players

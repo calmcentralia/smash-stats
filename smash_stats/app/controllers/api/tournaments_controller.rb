@@ -1,8 +1,11 @@
 class Api::TournamentsController < ApplicationController
   def index
-    if [:parameters][:flag] == recent
-      Tournament.order(:updated_at).where
-    render json: Tournament.order(:event_time)
+    if [:parameters][:flag] == "recent"
+      @tournament = Tournament.includes(:matches).where(matches: { tournament_id: true}).order(updated_at: :desc)
+    else
+      @tournament = Tournament.order(:event_time)
+    end
+    render :index
   end
 
   def create
