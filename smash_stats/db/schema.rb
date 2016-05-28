@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160519221721) do
+ActiveRecord::Schema.define(version: 20160527045458) do
 
   create_table "matches", force: :cascade do |t|
     t.integer  "tournament_id",     limit: 4, null: false
@@ -36,6 +36,13 @@ ActiveRecord::Schema.define(version: 20160519221721) do
   end
 
   add_index "names", ["player_id"], name: "index_names_on_player_id", using: :btree
+
+  create_table "news", force: :cascade do |t|
+    t.string   "headline",   limit: 255,   null: false
+    t.text     "body",       limit: 65535, null: false
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
+  end
 
   create_table "players", force: :cascade do |t|
     t.float    "skill",      limit: 24, default: 1200.0
