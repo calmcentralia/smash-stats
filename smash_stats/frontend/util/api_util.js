@@ -1,6 +1,6 @@
 var Actions = require('../actions/actions.js');
 
-var APiUtil = {
+var ApiUtil = {
   fetchNews: function() {
     $.ajax({
       url: "api/news",
@@ -16,6 +16,7 @@ var APiUtil = {
       url: "api/tournaments",
       method: "GET",
       success: function(tournaments) {
+        debugger
         Actions.receiveTournaments(tournaments);
       }
     });

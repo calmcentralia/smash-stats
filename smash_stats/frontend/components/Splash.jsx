@@ -1,4 +1,4 @@
- var React = require('react');
+var React = require('react');
 var ApiUtil = require('../util/api_util');
 var hashHistory = require('react-router').hashHistory;
 var TournamentStore = require('../stores/tournament');
@@ -21,6 +21,7 @@ var Splash = React.createClass( {
   },
 
   _tournamentOnChange: function() {
+    
     this.setState( { recentTournamentsAdded: TournamentStore.all() });
   },
 
@@ -29,13 +30,14 @@ var Splash = React.createClass( {
   },
 
   render: function() {
-    var recentTournamets = []
+    var recentTournaments = []
     var recentNews = []
+
     for (var i = 0; i < this.state.recentTournamentsAdded.length; i++) {
-      recentTournamets.push(<li className="tournament-list" id={this.state.recentTournamentsAdded.id} key={i} onClick={this.handleClick}>
+      recentTournaments.push(<li className="tournament-list" id={this.state.recentTournamentsAdded.id} key={i} onClick={this.handleClick}>
       {this.state.recentTournamentsAdded[i].title}
       <br/>
-      {this.state.recentTournamets.updated_at}
+      {this.state.recentTournamentsAdded[i].updated_at}
       </li>
       );
     }
@@ -44,11 +46,11 @@ var Splash = React.createClass( {
       recentNews.push(
         <li className="headline" key={i}>
           {this.state.news[i].headline}
-        </li>
+        </li>);
+      recentNews.push(
         <li className="body" key={i}>
-        {this.state.news[i].body}
-        </li>
-      );
+          {this.state.news[i].body}
+        </li>);
     }
     return(
         <div>
@@ -62,7 +64,7 @@ var Splash = React.createClass( {
           </div>
           <div>
             <ul className="tournaments">
-              {recentTournamets}
+              {recentTournaments}
             </ul>
           </div>
         </div>

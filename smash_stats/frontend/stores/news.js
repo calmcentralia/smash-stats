@@ -1,11 +1,11 @@
-var Store = require('flux/utils').stores
-var AppDispatchervar AppDispatcher = require('../dispatcher/dispatcher');
+var Store = require('flux/utils').Store
+var AppDispatcher = require('../dispatcher/dispatcher');
 var NewsStore = new Store(AppDispatcher);
 var _news = [];
 
 NewsStore.__onDispatch = function(payload) {
   switch(payload.actionType) {
-  case "NEWS RECIEVED":
+  case "NEWS RECEIVED":
     resetNews(payload.news);
     NewsStore.__emitChange();
     break;

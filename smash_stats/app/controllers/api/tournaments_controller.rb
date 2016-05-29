@@ -1,9 +1,11 @@
+
+
 class Api::TournamentsController < ApplicationController
   def index
-    if [:parameters][:flag] == "recent"
-      @tournament = Tournament.includes(:matches).where(matches: { tournament_id: true}).order(updated_at: :desc)
+    if params[:flag] == "recent"
+      @tournaments = Tournament.includes(:matches).where(matches: { tournament_id: true}).order(updated_at: :desc)
     else
-      @tournament = Tournament.order(:event_time)
+      @tournaments = Tournament.order(:event_time)
     end
     render :index
   end

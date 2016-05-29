@@ -9,6 +9,7 @@ class ApplicationController < ActionController::Base
     unless tournament
       tournament = Tournament.new(title: data["tournament"]["name"], event_time: data["tournament"]["started_at"])
       tournament.save
+    end
     participants = create_participant_hash(data["tournament"]["participants"])
     data["tournament"]["matches"].each do |match_hash|
 
