@@ -15,8 +15,8 @@ var ApiUtil = {
     $.ajax({
       url: "api/tournaments",
       method: "GET",
+      data: flag,
       success: function(tournaments) {
-        debugger
         Actions.receiveTournaments(tournaments);
       }
     });

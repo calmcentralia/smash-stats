@@ -25893,7 +25893,7 @@
 	  },
 	
 	  _newsOnChange: function () {
-	    this.setState({ news: NewsStore.all() });
+	    this.setState({ news: NewsStore.recent() });
 	  },
 	
 	  render: function () {
@@ -25913,12 +25913,12 @@
 	    for (var i = 0; i < this.state.news.length; i++) {
 	      recentNews.push(React.createElement(
 	        'li',
-	        { className: 'headline', key: i },
+	        { className: 'headline', key: 2 * i },
 	        this.state.news[i].headline
 	      ));
 	      recentNews.push(React.createElement(
 	        'li',
-	        { className: 'body', key: i },
+	        { className: 'body', key: 2 * i + 1 },
 	        this.state.news[i].body
 	      ));
 	    }
@@ -25975,8 +25975,8 @@
 	    $.ajax({
 	      url: "api/tournaments",
 	      method: "GET",
+	      data: flag,
 	      success: function (tournaments) {
-	        debugger;
 	        Actions.receiveTournaments(tournaments);
 	      }
 	    });
@@ -32822,7 +32822,7 @@
 	};
 	
 	NewsStore.all = function () {
-	  return _news.slice;
+	  return _news.slice();
 	};
 	
 	module.exports = NewsStore;

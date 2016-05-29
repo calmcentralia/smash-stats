@@ -21,12 +21,12 @@ var Splash = React.createClass( {
   },
 
   _tournamentOnChange: function() {
-    
+
     this.setState( { recentTournamentsAdded: TournamentStore.all() });
   },
 
   _newsOnChange: function() {
-    this.setState( {news: NewsStore.all()});
+    this.setState( {news: NewsStore.recent()});
   },
 
   render: function() {
@@ -44,11 +44,11 @@ var Splash = React.createClass( {
 
     for (var i = 0; i < this.state.news.length; i++) {
       recentNews.push(
-        <li className="headline" key={i}>
+        <li className="headline" key={2*i}>
           {this.state.news[i].headline}
         </li>);
       recentNews.push(
-        <li className="body" key={i}>
+        <li className="body" key={2*i+1}>
           {this.state.news[i].body}
         </li>);
     }

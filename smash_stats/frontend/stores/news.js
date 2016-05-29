@@ -22,7 +22,7 @@ NewsStore.recent = function() {
 }
 
 NewsStore.all = function() {
-  return _news.slice;
+  return _news.slice();
 }
 
 module.exports = NewsStore;
