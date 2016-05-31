@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160527045458) do
+ActiveRecord::Schema.define(version: 20160531181111) do
 
   create_table "matches", force: :cascade do |t|
     t.integer  "tournament_id",     limit: 4, null: false
@@ -45,11 +45,13 @@ ActiveRecord::Schema.define(version: 20160527045458) do
   end
 
   create_table "players", force: :cascade do |t|
-    t.float    "skill",      limit: 24, default: 1200.0
-    t.integer  "wins",       limit: 4,  default: 0
-    t.integer  "losses",     limit: 4,  default: 0
-    t.datetime "created_at",                             null: false
-    t.datetime "updated_at",                             null: false
+    t.float    "skill",            limit: 24, default: 1500.0
+    t.integer  "wins",             limit: 4,  default: 0
+    t.integer  "losses",           limit: 4,  default: 0
+    t.datetime "created_at",                                   null: false
+    t.datetime "updated_at",                                   null: false
+    t.float    "volatility",       limit: 24, default: 0.06
+    t.float    "rating_deviation", limit: 24, default: 350.0
   end
 
   create_table "tournaments", force: :cascade do |t|

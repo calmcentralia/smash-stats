@@ -20,6 +20,14 @@ var ApiUtil = {
         Actions.receiveTournaments(tournaments);
       }
     });
+  },
+
+  tournamentUpdate: function(title) {
+    $.ajax({
+      url: "api/challonge",
+      method: "PATCH",
+      data: title
+    });
   }
 };
 

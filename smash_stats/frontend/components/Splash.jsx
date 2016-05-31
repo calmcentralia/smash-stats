@@ -20,6 +20,11 @@ var Splash = React.createClass( {
     }
   },
 
+  componentWillUnmount: function() {
+    this.tournamentToken.remove();
+    this.newsToken.remove();
+  },
+
   _tournamentOnChange: function() {
 
     this.setState( { recentTournamentsAdded: TournamentStore.all() });

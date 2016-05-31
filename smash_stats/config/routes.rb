@@ -4,6 +4,6 @@ Rails.application.routes.draw do
     resources :news, only: [:index, :create]
     resources :players, only: [:index, :show]
     resources :tournaments, only: [:index, :create, :destroy]
-    resource :challonge, only: :create
+    resource :challonge, only: :update
   end
 end
