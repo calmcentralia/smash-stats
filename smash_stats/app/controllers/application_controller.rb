@@ -18,13 +18,11 @@ class ApplicationController < ActionController::Base
       player2 = match_hash["match"]["player2_id"]
       player1 = participants[player1]
       player2 = participants[player2]
-      player1 = compare_against_sponsor_list(player1)
-      player2 = compare_against_sponsor_list(player2)
       player1 = normalize_name(player1)
       player2 = normalize_name(player2)
-      player1 = find_player_by_name(player1)
-      player2 = find_player_by_name(player2)
-      score = match_hash["match"]["score_csv"]
+      player1 = find_name(player1)
+      player2 = find_name(player2)
+      score = match_hash["match"]["scores_csv"]
       player1_games, player2_games = score.split("-")
       match = Match.new(tournament_id: tournament.id, player1_id: player1.id, player2_id: player2.id, player1_games_won: player1_games.to_i, player2_games_won: player2_games.to_i)
       match.save
@@ -35,7 +33,7 @@ class ApplicationController < ActionController::Base
   def create_participant_hash(participants)
     participant_hash = {}
     participants.each do |participant|
-      participant_hash[particpant["participant"]["id"]] = particpant["particpant"]["name"]
+      participant_hash[participant["participant"]["id"]] = participant["participant"]["name"]
     end
     participant_hash
   end
@@ -46,8 +44,7 @@ class ApplicationController < ActionController::Base
     name = shed_sponsor.last if shed_sponsor.length > 1
     shed_sponsor = name.split(" l ")
     name = shed_sponsor.last if shed_sponsor.length > 1
-    name.capitalize!
-    name.split.map(&:capitalize).join(" ")
+    name.split.map{|word| word[0]=word[0].upcase; word}.join(" ")
   end
 
   def find_name(player_name)
@@ -65,7 +62,7 @@ class ApplicationController < ActionController::Base
 
   def compare_against_sponsor_list(name)
     SPONSORS.each do |sponsor|
-      if sponsor = name[0...sponsor.length]
+      if sponsor == name[0...sponsor.length]
         name = name[sponsor.length..-1]
       end
     end
