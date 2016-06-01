@@ -1,14 +1,14 @@
-Rating = Struct.new(:rating, :rating_deviation, :volatility)
+Rating = Struct.new(:rating, :rating_deviation, :volatility, :id)
 
 class Tournament < ActiveRecord::Base
-  has_many :matches
+  has_many :matches, dependent: :destroy
   has_many :home_players, through: :matches
   has_many :away_players, through: :matches
   def update_skill
     rating_identifier = {}
     all_players = self.home_players.union(self.away_players)
     all_players.each do |player|
-      rating_identifier[player.id] = Rating.new(player.skill, player.rating_deviation, player.volatility)
+      rating_identifier[player.id] = Rating.new(player.skill, player.rating_deviation, player.volatility, player.id)
     end
     period = Glicko2::RatingPeriod.from_objs(rating_identifier.values)
 
@@ -25,7 +25,6 @@ class Tournament < ActiveRecord::Base
     next_period.players.each { |person| person.update_obj }
     all_players.each do |player|
       updated_player = rating_identifier[player.id]
-      debugger
       player.update_attributes(skill: updated_player.rating, rating_deviation: updated_player.rating_deviation, volatility: updated_player.volatility)
     end
   end
