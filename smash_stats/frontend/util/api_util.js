@@ -22,11 +22,11 @@ var ApiUtil = {
     });
   },
 
-  tournamentUpdate: function(title) {
+  tournamentUpdate: function(titles) {
     $.ajax({
       url: "api/challonge",
       method: "PATCH",
-      data: title
+      data: titles
     });
   }
 };

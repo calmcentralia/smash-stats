@@ -25989,11 +25989,11 @@
 	    });
 	  },
 	
-	  tournamentUpdate: function (title) {
+	  tournamentUpdate: function (titles) {
 	    $.ajax({
 	      url: "api/challonge",
 	      method: "PATCH",
-	      data: title
+	      data: titles
 	    });
 	  }
 	};
@@ -32857,10 +32857,10 @@
 	  mixins: [LinkedStateMixin],
 	
 	  getInitialState: function () {
-	    return { title: "" };
+	    return { titles: "" };
 	  },
 	  handleSubmit: function () {
-	    ApiUtil.tournamentUpdate({ title: this.state.title });
+	    ApiUtil.tournamentUpdate({ titles: this.state.titles });
 	  },
 	
 	  render: function () {
@@ -32870,7 +32870,7 @@
 	      React.createElement(
 	        'form',
 	        { onSubmit: this.handleSubmit },
-	        React.createElement('input', { type: 'text', valueLink: this.linkState('title') }),
+	        React.createElement('input', { type: 'text', valueLink: this.linkState('titles') }),
 	        React.createElement('input', { type: 'submit', value: 'Add Tournament' })
 	      )
 	    );

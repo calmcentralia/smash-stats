@@ -7,17 +7,17 @@ var TournamentForm = React.createClass( {
   mixins: [LinkedStateMixin],
 
   getInitialState: function() {
-    return {title: ""};
+    return {titles: ""};
   },
   handleSubmit: function() {
-    ApiUtil.tournamentUpdate({title: this.state.title});
+    ApiUtil.tournamentUpdate({titles: this.state.titles});
   },
 
   render: function() {
     return (
       <div>
         <form onSubmit={this.handleSubmit}>
-          <input type="text" valueLink={this.linkState('title')}/>
+          <input type="text" valueLink={this.linkState('titles')}/>
           <input type="submit" value="Add Tournament" />
         </form>
       </div>
