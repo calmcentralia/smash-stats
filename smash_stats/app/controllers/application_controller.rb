@@ -3,7 +3,7 @@ class ApplicationController < ActionController::Base
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
   helper_method :parse_challonge
-  SPONSORS = [ "ESE", "NP", "HT", "ID", "3G", "BoA", "VAG", "STR", "PL", "HH"]
+  SPONSORS = [ "ESE", "NP", "HT", "ID", "3G", "BoA", "VAG", "STR", "PL", "HH", "MTx", "MTx_", "MHM~", "MHM ~"]
 
   def parse_challonge(data)
     tournament = Tournament.find_by_title(data["tournament"]["name"])

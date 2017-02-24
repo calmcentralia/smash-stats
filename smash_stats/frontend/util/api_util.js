@@ -22,6 +22,17 @@ var ApiUtil = {
     });
   },
 
+  fetchPlayers: function() {
+    $.ajax({
+      url: "api/players",
+      method: "GET",
+      success: function(players) {
+        debugger;
+        Actions.receivePlayers(players);
+      }
+    });
+  },
+
   tournamentUpdate: function(titles) {
     $.ajax({
       url: "api/challonge",

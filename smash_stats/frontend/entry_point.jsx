@@ -3,6 +3,7 @@ var ReactDOM = require('react-dom');
 var ReactRouter = require('react-router');
 var Splash = require('./components/Splash');
 var TournamentForm = require('./components/TournamentForm');
+var PlayerIndex = require('./components/PlayerIndex');
 var Router = ReactRouter.Router;
 var Route = ReactRouter.Route;
 var IndexRoute = ReactRouter.IndexRoute;
@@ -23,6 +24,7 @@ var routes = (
   <Route path="/" component={App}>
     <IndexRoute component={Splash}/>
      <Route path="challonge" component={TournamentForm} />
+     <Route path="players" component ={PlayerIndex} />
   </Route>
 );
 

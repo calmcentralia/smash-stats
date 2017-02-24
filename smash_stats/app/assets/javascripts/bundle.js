@@ -49,6 +49,7 @@
 	var ReactRouter = __webpack_require__(168);
 	var Splash = __webpack_require__(229);
 	var TournamentForm = __webpack_require__(255);
+	var PlayerIndex = __webpack_require__(260);
 	var Router = ReactRouter.Router;
 	var Route = ReactRouter.Route;
 	var IndexRoute = ReactRouter.IndexRoute;
@@ -70,7 +71,8 @@
 	  Route,
 	  { path: '/', component: App },
 	  React.createElement(IndexRoute, { component: Splash }),
-	  React.createElement(Route, { path: 'challonge', component: TournamentForm })
+	  React.createElement(Route, { path: 'challonge', component: TournamentForm }),
+	  React.createElement(Route, { path: 'players', component: PlayerIndex })
 	);
 	
 	document.addEventListener("DOMContentLoaded", function () {
@@ -25989,6 +25991,17 @@
 	    });
 	  },
 	
+	  fetchPlayers: function () {
+	    $.ajax({
+	      url: "api/players",
+	      method: "GET",
+	      success: function (players) {
+	        debugger;
+	        Actions.receivePlayers(players);
+	      }
+	    });
+	  },
+	
 	  tournamentUpdate: function (titles) {
 	    $.ajax({
 	      url: "api/challonge",
@@ -26018,6 +26031,13 @@
 	    AppDispatcher.dispatch({
 	      actionType: "TOURNAMENTS RECEIVED",
 	      tournaments: tournaments
+	    });
+	  },
+	
+	  receivePlayers: function (players) {
+	    AppDispatcher.dispatch({
+	      actionType: "PLAYERS RECEIVED",
+	      players: players
 	    });
 	  }
 	};
@@ -33111,6 +33131,554 @@
 	};
 	
 	module.exports = ReactStateSetters;
+
+/***/ },
+/* 260 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React = __webpack_require__(1);
+	var Paginator = __webpack_require__(263).default;
+	var PlayerStore = __webpack_require__(262);
+	var ApiUtil = __webpack_require__(230);
+	
+	var PlayerIndex = React.createClass({
+	  displayName: 'PlayerIndex',
+	
+	  getInitialState: function () {
+	    return {
+	      players: PlayerStore.all(),
+	      activePage: 1,
+	      playerPos: 0
+	    };
+	  },
+	
+	  componentDidMount: function () {
+	    this.playerToken = PlayerStore.addListener(this._playerOnChange);
+	    ApiUtil.fetchPlayers();
+	  },
+	
+	  componentWillUnmount: function () {
+	    this.playerToken.remove();
+	  },
+	
+	  handlePageChange(pageNumber) {
+	    this.setState({ activePage: pageNumber, playerPos: 20 * (pageNumber - 1) });
+	  },
+	
+	  _playerOnChange: function () {
+	    this.setState({ players: PlayerStore.all() });
+	  },
+	
+	  render: function () {
+	    var players = [];
+	
+	    for (var i = this.state.playerPos; i < this.state.players.length && i < this.state.playerPos + 20; i++) {
+	      players.push(React.createElement(
+	        'li',
+	        { className: 'player-list', key: i },
+	        React.createElement(
+	          'ul',
+	          null,
+	          React.createElement(
+	            'li',
+	            null,
+	            this.state.players[i].tag
+	          ),
+	          React.createElement(
+	            'li',
+	            null,
+	            this.state.players[i].skill
+	          ),
+	          React.createElement(
+	            'li',
+	            null,
+	            this.state.players[i].confidence_low
+	          ),
+	          React.createElement(
+	            'li',
+	            null,
+	            this.state.players[i].confidence_high
+	          )
+	        )
+	      ));
+	    }
+	    if (this.state.players.length > 0) {
+	      return React.createElement(
+	        'div',
+	        null,
+	        React.createElement(
+	          'ul',
+	          null,
+	          players
+	        ),
+	        React.createElement(Paginator, {
+	          activePage: this.state.activePage,
+	          itemsCountPerPage: 20,
+	          totalItemsCount: this.state.players.length,
+	          pageRangeDisplayed: 5,
+	          onChange: this.handlePageChange
+	        })
+	      );
+	    } else {
+	      return React.createElement('div', null);
+	    }
+	  }
+	});
+	
+	module.exports = PlayerIndex;
+
+/***/ },
+/* 261 */
+/***/ function(module, exports) {
+
+	module.exports = Paginator;
+	
+	// Paginator constructor
+	//
+	// `per_page` is the number of results per page, `length` is the number of
+	// pages to display. They default to `25` and `10` respectively.
+	function Paginator(per_page, length) {
+	  // You really should be calling this with `new Paginator`, but WHATEVER.
+	  if (!(this instanceof Paginator)) {
+	    return new Paginator(per_page, length);
+	  }
+	
+	  // Woo, defaults!
+	  this.per_page = per_page || 25;
+	  this.length = length || 10;
+	}
+	
+	// Build an object with all the necessary information for outputting pagination
+	// controls.
+	//
+	// (new Paginator(paginator.build(100, 2)
+	Paginator.prototype.build = function(total_results, current_page) {
+	  // We want the number of pages, rounded up to the nearest page.
+	  var total_pages = Math.ceil(total_results / this.per_page);
+	
+	  // Ensure both total_results and current_page are treated as Numbers
+	  total_results = parseInt(total_results, 10);
+	  current_page  = parseInt(current_page, 10) || 1;
+	
+	  // Obviously we can't be on a negative or 0 page.
+	  if (current_page < 1) { current_page = 1; }
+	  // If the user has done something like /page/99999 we want to clamp that back
+	  // down.
+	  if (current_page > total_pages) { current_page = total_pages; }
+	
+	  // This is the first page to be displayed as a numbered link.
+	  var first_page = Math.max(1, current_page - Math.floor(this.length / 2));
+	
+	  // And here's the last page to be displayed specifically.
+	  var last_page = Math.min(total_pages, current_page + Math.floor(this.length / 2));
+	
+	  // This is triggered if we're at or near one of the extremes; we won't have
+	  // enough page links. We need to adjust our bounds accordingly.
+	  if (last_page - first_page + 1 < this.length) {
+	    if (current_page < (total_pages / 2)) {
+	      last_page = Math.min(total_pages, last_page + (this.length - (last_page - first_page)));
+	    } else {
+	      first_page = Math.max(1, first_page - (this.length - (last_page - first_page)));
+	    }
+	  }
+	
+	  // This can be triggered if the user wants an odd number of pages.
+	  if (last_page - first_page + 1 > this.length) {
+	    // We want to move towards whatever extreme we're closest to at the time.
+	    if (current_page > (total_pages / 2)) {
+	      first_page++;
+	    } else {
+	      last_page--;
+	    }
+	  }
+	
+	  // First result on the page. This, along with the field below, can be used to
+	  // do "showing x to y of z results" style things.
+	  var first_result = this.per_page * (current_page - 1);
+	  if (first_result < 0) { first_result = 0; }
+	
+	  // Last result on the page.
+	  var last_result = (this.per_page * current_page) - 1;
+	  if (last_result < 0) { last_result = 0; }
+	  if (last_result > Math.max(total_results - 1, 0)) { last_result = Math.max(total_results - 1, 0); }
+	
+	  // GIMME THAT OBJECT
+	  return {
+	    total_pages: total_pages,
+	    pages: Math.min(last_page - first_page + 1, total_pages),
+	    current_page: current_page,
+	    first_page: first_page,
+	    last_page: last_page,
+	    previous_page: current_page - 1,
+	    next_page: current_page + 1,
+	    has_previous_page: current_page > 1,
+	    has_next_page: current_page < total_pages,
+	    total_results: total_results,
+	    results: Math.min(last_result - first_result + 1, total_results),
+	    first_result: first_result,
+	    last_result: last_result,
+	  };
+	};
+
+
+/***/ },
+/* 262 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Store = __webpack_require__(237).Store;
+	var AppDispatcher = __webpack_require__(232);
+	var PlayerStore = new Store(AppDispatcher);
+	var _players = [];
+	
+	PlayerStore.__onDispatch = function (payload) {
+	  switch (payload.actionType) {
+	    case "PLAYERS RECEIVED":
+	      resetPlayers(payload.players);
+	      PlayerStore.__emitChange();
+	      break;
+	  }
+	};
+	
+	var resetPlayers = function (players) {
+	  _players = players;
+	};
+	
+	PlayerStore.all = function () {
+	  return _players.slice();
+	};
+	
+	module.exports = PlayerStore;
+
+/***/ },
+/* 263 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _react = __webpack_require__(1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _paginator = __webpack_require__(261);
+	
+	var _paginator2 = _interopRequireDefault(_paginator);
+	
+	var _Page = __webpack_require__(264);
+	
+	var _Page2 = _interopRequireDefault(_Page);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var Pagination = function (_React$Component) {
+	    _inherits(Pagination, _React$Component);
+	
+	    function Pagination() {
+	        _classCallCheck(this, Pagination);
+	
+	        return _possibleConstructorReturn(this, (Pagination.__proto__ || Object.getPrototypeOf(Pagination)).apply(this, arguments));
+	    }
+	
+	    _createClass(Pagination, [{
+	        key: "buildPages",
+	        value: function buildPages() {
+	            var pages = [];
+	            var _props = this.props,
+	                itemsCountPerPage = _props.itemsCountPerPage,
+	                pageRangeDisplayed = _props.pageRangeDisplayed,
+	                activePage = _props.activePage,
+	                prevPageText = _props.prevPageText,
+	                nextPageText = _props.nextPageText,
+	                firstPageText = _props.firstPageText,
+	                lastPageText = _props.lastPageText,
+	                totalItemsCount = _props.totalItemsCount,
+	                onChange = _props.onChange,
+	                activeClass = _props.activeClass,
+	                hideDisabled = _props.hideDisabled;
+	
+	
+	            var paginationInfo = new _paginator2.default(itemsCountPerPage, pageRangeDisplayed).build(totalItemsCount, activePage);
+	
+	            if (paginationInfo.first_page !== paginationInfo.last_page) {
+	                for (var i = paginationInfo.first_page; i <= paginationInfo.last_page; i++) {
+	                    pages.push(_react2.default.createElement(_Page2.default, {
+	                        isActive: i === activePage,
+	                        key: i,
+	                        pageNumber: i,
+	                        pageText: i + "",
+	                        onClick: onChange,
+	                        activeClass: activeClass
+	                    }));
+	                }
+	            }
+	
+	            hideDisabled && !paginationInfo.has_previous_page || pages.unshift(_react2.default.createElement(_Page2.default, {
+	                key: "prev" + paginationInfo.previous_page,
+	                pageNumber: paginationInfo.previous_page,
+	                onClick: onChange,
+	                pageText: prevPageText,
+	                isDisabled: !paginationInfo.has_previous_page
+	            }));
+	
+	            hideDisabled && !paginationInfo.has_previous_page || pages.unshift(_react2.default.createElement(_Page2.default, {
+	                key: "first",
+	                pageNumber: 1,
+	                onClick: onChange,
+	                pageText: firstPageText,
+	                isDisabled: paginationInfo.current_page === paginationInfo.first_page
+	            }));
+	
+	            hideDisabled && !paginationInfo.has_next_page || pages.push(_react2.default.createElement(_Page2.default, {
+	                key: "next" + paginationInfo.next_page,
+	                pageNumber: paginationInfo.next_page,
+	                onClick: onChange,
+	                pageText: nextPageText,
+	                isDisabled: !paginationInfo.has_next_page
+	            }));
+	
+	            hideDisabled && !paginationInfo.has_next_page || pages.push(_react2.default.createElement(_Page2.default, {
+	                key: "last",
+	                pageNumber: paginationInfo.total_pages,
+	                onClick: onChange,
+	                pageText: lastPageText,
+	                isDisabled: paginationInfo.current_page === paginationInfo.total_pages
+	            }));
+	
+	            return pages;
+	        }
+	    }, {
+	        key: "render",
+	        value: function render() {
+	            var pages = this.buildPages();
+	            return _react2.default.createElement(
+	                "ul",
+	                { className: this.props.innerClass },
+	                pages
+	            );
+	        }
+	    }]);
+	
+	    return Pagination;
+	}(_react2.default.Component);
+	
+	Pagination.propTypes = {
+	    totalItemsCount: _react.PropTypes.number.isRequired,
+	    onChange: _react.PropTypes.func.isRequired,
+	    activePage: _react.PropTypes.number,
+	    itemsCountPerPage: _react.PropTypes.number,
+	    pageRangeDisplayed: _react.PropTypes.number,
+	    prevPageText: _react.PropTypes.oneOfType([_react.PropTypes.string, _react.PropTypes.element]),
+	    nextPageText: _react.PropTypes.oneOfType([_react.PropTypes.string, _react.PropTypes.element]),
+	    lastPageText: _react.PropTypes.oneOfType([_react.PropTypes.string, _react.PropTypes.element]),
+	    firstPageText: _react.PropTypes.oneOfType([_react.PropTypes.string, _react.PropTypes.element]),
+	    innerClass: _react.PropTypes.string,
+	    activeClass: _react.PropTypes.string,
+	    hideDisabled: _react.PropTypes.bool
+	};
+	Pagination.defaultProps = {
+	    itemsCountPerPage: 10,
+	    pageRangeDisplayed: 5,
+	    activePage: 1,
+	    prevPageText: "⟨",
+	    firstPageText: "«",
+	    nextPageText: "⟩",
+	    lastPageText: "»",
+	    innerClass: "pagination"
+	};
+	var _default = Pagination;
+	exports.default = _default;
+	;
+	
+	var _temp = function () {
+	    if (typeof __REACT_HOT_LOADER__ === 'undefined') {
+	        return;
+	    }
+	
+	    __REACT_HOT_LOADER__.register(Pagination, "Pagination", "src/components/Pagination.js");
+	
+	    __REACT_HOT_LOADER__.register(_default, "default", "src/components/Pagination.js");
+	}();
+	
+	;
+
+/***/ },
+/* 264 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _react = __webpack_require__(1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _classnames = __webpack_require__(265);
+	
+	var _classnames2 = _interopRequireDefault(_classnames);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var Page = function (_Component) {
+	    _inherits(Page, _Component);
+	
+	    function Page() {
+	        _classCallCheck(this, Page);
+	
+	        return _possibleConstructorReturn(this, (Page.__proto__ || Object.getPrototypeOf(Page)).apply(this, arguments));
+	    }
+	
+	    _createClass(Page, [{
+	        key: "handleClick",
+	        value: function handleClick(e) {
+	            var _props = this.props,
+	                isDisabled = _props.isDisabled,
+	                pageNumber = _props.pageNumber;
+	
+	            e.preventDefault();
+	            if (isDisabled) {
+	                return;
+	            }
+	            this.props.onClick(pageNumber);
+	        }
+	    }, {
+	        key: "render",
+	        value: function render() {
+	            var _cx;
+	
+	            var _props2 = this.props,
+	                pageText = _props2.pageText,
+	                pageNumber = _props2.pageNumber,
+	                activeClass = _props2.activeClass,
+	                disabledClass = _props2.disabledClass,
+	                isActive = _props2.isActive,
+	                isDisabled = _props2.isDisabled;
+	
+	
+	            var css = (0, _classnames2.default)((_cx = {}, _defineProperty(_cx, activeClass, isActive), _defineProperty(_cx, disabledClass, isDisabled), _cx));
+	
+	            return _react2.default.createElement(
+	                "li",
+	                { className: css, onClick: this.handleClick.bind(this) },
+	                _react2.default.createElement(
+	                    "a",
+	                    { href: "#" },
+	                    pageText
+	                )
+	            );
+	        }
+	    }]);
+	
+	    return Page;
+	}(_react.Component);
+	
+	Page.propTypes = {
+	    pageText: _react.PropTypes.oneOfType([_react.PropTypes.string, _react.PropTypes.element]),
+	    pageNumber: _react.PropTypes.number.isRequired,
+	    onClick: _react.PropTypes.func.isRequired,
+	    isActive: _react.PropTypes.bool.isRequired,
+	    isDisabled: _react.PropTypes.bool,
+	    activeClass: _react.PropTypes.string,
+	    disabledClass: _react.PropTypes.string
+	};
+	Page.defaultProps = {
+	    activeClass: "active",
+	    disabledClass: "disabled",
+	    isActive: false,
+	    isDisabled: false
+	};
+	var _default = Page;
+	exports.default = _default;
+	;
+	
+	var _temp = function () {
+	    if (typeof __REACT_HOT_LOADER__ === 'undefined') {
+	        return;
+	    }
+	
+	    __REACT_HOT_LOADER__.register(Page, "Page", "src/components/Page.js");
+	
+	    __REACT_HOT_LOADER__.register(_default, "default", "src/components/Page.js");
+	}();
+	
+	;
+
+/***/ },
+/* 265 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
+	  Copyright (c) 2016 Jed Watson.
+	  Licensed under the MIT License (MIT), see
+	  http://jedwatson.github.io/classnames
+	*/
+	/* global define */
+	
+	(function () {
+		'use strict';
+	
+		var hasOwn = {}.hasOwnProperty;
+	
+		function classNames () {
+			var classes = [];
+	
+			for (var i = 0; i < arguments.length; i++) {
+				var arg = arguments[i];
+				if (!arg) continue;
+	
+				var argType = typeof arg;
+	
+				if (argType === 'string' || argType === 'number') {
+					classes.push(arg);
+				} else if (Array.isArray(arg)) {
+					classes.push(classNames.apply(null, arg));
+				} else if (argType === 'object') {
+					for (var key in arg) {
+						if (hasOwn.call(arg, key) && arg[key]) {
+							classes.push(key);
+						}
+					}
+				}
+			}
+	
+			return classes.join(' ');
+		}
+	
+		if (typeof module !== 'undefined' && module.exports) {
+			module.exports = classNames;
+		} else if (true) {
+			// register as 'classnames', consistent with npm package name
+			!(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function () {
+				return classNames;
+			}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+		} else {
+			window.classNames = classNames;
+		}
+	}());
+
 
 /***/ }
 /******/ ]);

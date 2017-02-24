@@ -13,6 +13,13 @@ var Actions = {
       actionType: "TOURNAMENTS RECEIVED",
       tournaments: tournaments
     });
+  },
+
+  receivePlayers: function(players){
+    AppDispatcher.dispatch({
+      actionType: "PLAYERS RECEIVED",
+      players: players
+    });
   }
 };
 
