@@ -27,7 +27,6 @@ var ApiUtil = {
       url: "api/players",
       method: "GET",
       success: function(players) {
-        debugger;
         Actions.receivePlayers(players);
       }
     });

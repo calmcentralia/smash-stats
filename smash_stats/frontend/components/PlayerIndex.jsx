@@ -57,13 +57,13 @@ var PlayerIndex = React.createClass( {
           <ul>
             {players}
           </ul>
-          <Paginator
-            activePage={this.state.activePage}
-            itemsCountPerPage={20}
-            totalItemsCount={this.state.players.length}
-            pageRangeDisplayed={5}
-            onChange={this.handlePageChange}
-          />
+            <Paginator
+              activePage={this.state.activePage}
+              itemsCountPerPage={20}
+              totalItemsCount={this.state.players.length}
+              pageRangeDisplayed={5}
+              onChange={this.handlePageChange}
+            />
         </div>
       );
     }

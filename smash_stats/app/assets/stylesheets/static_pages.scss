@@ -1,3 +1,58 @@
 // Place all the styles related to the StaticPages controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+
+
+.pagination{
+  list-style: none;
+  display: flex;
+  justify-content: center;
+}
+
+.pagination li{
+  border-radius: 5px;
+}
+.pagination .active{
+  background: #4D7FFF;
+}
+.pagination .active a{
+  color: white;
+}
+
+.pagination .disabled a{
+  color: grey;
+}
+.pagination li a{
+  font-family: 'Droid Serif', serif;
+  font-size: 18px;
+  color: black;
+  float: left;
+  padding: 8px 0px;
+  width: 50px;
+  text-align: center;
+  text-decoration: none;
+}
+
+.pagination li:hover:not(.active):not(.disabled){
+  background: linear-gradient(47deg, #f59f3c, #fefc65, #fc8b91, #9d311a);
+  background-size: 800% 800%;
+  -webkit-animation: smash 13s ease infinite;
+  -moz-animation: smash 13s ease infinite;
+  animation: smash 13s ease infinite;
+
+  @-webkit-keyframes smash {
+      0%{background-position:0% 96%}
+      50%{background-position:100% 5%}
+      100%{background-position:0% 96%}
+  }
+  @-moz-keyframes smash {
+      0%{background-position:0% 96%}
+      50%{background-position:100% 5%}
+      100%{background-position:0% 96%}
+  }
+  @keyframes smash {
+      0%{background-position:0% 96%}
+      50%{background-position:100% 5%}
+      100%{background-position:0% 96%}
+  }
+}
