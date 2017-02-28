@@ -33139,6 +33139,7 @@
 	var Paginator = __webpack_require__(263).default;
 	var PlayerStore = __webpack_require__(262);
 	var ApiUtil = __webpack_require__(230);
+	var SearchBar = __webpack_require__(266);
 	
 	var PlayerIndex = React.createClass({
 	  displayName: 'PlayerIndex',
@@ -33147,7 +33148,8 @@
 	    return {
 	      players: PlayerStore.all(),
 	      activePage: 1,
-	      playerPos: 0
+	      playerPos: 0,
+	      sortCategory: "none"
 	    };
 	  },
 	
@@ -33161,43 +33163,110 @@
 	  },
 	
 	  handlePageChange(pageNumber) {
-	    this.setState({ activePage: pageNumber, playerPos: 20 * (pageNumber - 1) });
+	    this.setState({ activePage: pageNumber, playerPos: 10 * (pageNumber - 1) });
 	  },
 	
 	  _playerOnChange: function () {
 	    this.setState({ players: PlayerStore.all() });
 	  },
 	
+	  handleSort: function (e) {
+	    var players = JSON.parse(JSON.stringify(this.state.players));
+	    var sortCategory = this.state.sortCategory;
+	    switch (e.currentTarget.className) {
+	      case "head-cell tag":
+	        if (sortCategory === "tag") {
+	          sortCategory = "none";
+	          players.sort(function (a, b) {
+	            var nameA = a.tag.toUpperCase(); // ignore upper and lowercase
+	            var nameB = b.tag.toUpperCase(); // ignore upper and lowercase
+	            if (nameA < nameB) {
+	              return 1;
+	            }
+	            if (nameA > nameB) {
+	              return -1;
+	            }
+	            return 0;
+	          });
+	        } else {
+	          sortCategory = "tag";
+	          players.sort(function (a, b) {
+	            var nameA = a.tag.toUpperCase(); // ignore upper and lowercase
+	            var nameB = b.tag.toUpperCase(); // ignore upper and lowercase
+	            if (nameA < nameB) {
+	              return -1;
+	            }
+	            if (nameA > nameB) {
+	              return 1;
+	            }
+	            return 0;
+	          });
+	        }
+	        break;
+	
+	      case "head-cell skill-rating":
+	        if (sortCategory === "skill-rating") {
+	          sortCategory = "none";
+	          players.sort(function (a, b) {
+	            return b.skill - a.skill;
+	          });
+	        } else {
+	          sortCategory = "skill-rating";
+	          players.sort(function (a, b) {
+	            return a.skill - b.skill;
+	          });
+	        }
+	        break;
+	
+	      case "head-cell interval":
+	        if (sortCategory === "interval") {
+	          sortCategory = "none";
+	          players.sort(function (a, b) {
+	            return b.confidence_high - a.confidence_high;
+	          });
+	        } else {
+	          sortCategory = "interval";
+	          players.sort(function (a, b) {
+	            return a.confidence_low - b.confidence_low;
+	          });
+	        }
+	        break;
+	    }
+	    this.setState({ players: players, sortCategory: sortCategory });
+	  },
+	
+	  handleResults: function (results) {
+	    this.setState({ players: results, activePage: 1, playerPos: 0, sortCategory: "none" });
+	  },
+	
 	  render: function () {
 	    var players = [];
-	
-	    for (var i = this.state.playerPos; i < this.state.players.length && i < this.state.playerPos + 20; i++) {
+	    var oddEven = "odd";
+	    for (var i = this.state.playerPos; i < this.state.players.length && i < this.state.playerPos + 10; i++) {
+	      if (i % 2 === 1) {
+	        oddEven = "odd";
+	      } else {
+	        oddEven = "even";
+	      }
 	      players.push(React.createElement(
-	        'li',
-	        { className: 'player-list', key: i },
+	        'div',
+	        { className: "row " + oddEven, key: i },
 	        React.createElement(
-	          'ul',
-	          null,
-	          React.createElement(
-	            'li',
-	            null,
-	            this.state.players[i].tag
-	          ),
-	          React.createElement(
-	            'li',
-	            null,
-	            this.state.players[i].skill
-	          ),
-	          React.createElement(
-	            'li',
-	            null,
-	            this.state.players[i].confidence_low
-	          ),
-	          React.createElement(
-	            'li',
-	            null,
-	            this.state.players[i].confidence_high
-	          )
+	          'div',
+	          { className: 'cell' },
+	          this.state.players[i].tag
+	        ),
+	        React.createElement(
+	          'div',
+	          { className: 'cell' },
+	          this.state.players[i].skill
+	        ),
+	        React.createElement(
+	          'div',
+	          { className: 'cell' },
+	          this.state.players[i].confidence_low,
+	          ' - ',
+	          this.state.players[i].confidence_high
 	        )
 	      ));
 	    }
@@ -33205,21 +33274,45 @@
 	      return React.createElement(
 	        'div',
 	        null,
+	        React.createElement(SearchBar, {
+	          onChange: this.handleResults
+	        }),
 	        React.createElement(
-	          'ul',
-	          null,
-	          players
+	          'div',
+	          { className: 'head' },
+	          React.createElement(
+	            'div',
+	            { className: 'head-cell tag', onClick: this.handleSort },
+	            'Tag'
+	          ),
+	          React.createElement(
+	            'div',
+	            { className: 'head-cell skill-rating', onClick: this.handleSort },
+	            'Skill Rating'
+	          ),
+	          React.createElement(
+	            'div',
+	            { className: 'head-cell interval', onClick: this.handleSort },
+	            '95% Certainty Interval'
+	          )
 	        ),
+	        players,
 	        React.createElement(Paginator, {
 	          activePage: this.state.activePage,
-	          itemsCountPerPage: 20,
+	          itemsCountPerPage: 10,
 	          totalItemsCount: this.state.players.length,
 	          pageRangeDisplayed: 5,
 	          onChange: this.handlePageChange
 	        })
 	      );
 	    } else {
-	      return React.createElement('div', null);
+	      return React.createElement(
+	        'div',
+	        null,
+	        React.createElement(SearchBar, {
+	          onChange: this.handleResults
+	        })
+	      );
 	    }
 	  }
 	});
@@ -33344,6 +33437,26 @@
 	
 	PlayerStore.all = function () {
 	  return _players.slice();
+	};
+	
+	PlayerStore.tags = function () {
+	  var search = [];
+	  for (var i = 0; i < _players.length; i++) {
+	    search.push(_players[i].tag);
+	  }
+	  return search;
+	};
+	
+	PlayerStore.findByTag = function (tags) {
+	  var matches = [];
+	  for (var i = 0; i < tags.length; i++) {
+	    for (var j = 0; j < _players.length; j++) {
+	      if (tags[i] === _players[j].tag) {
+	        matches.push(_players[j]);
+	      }
+	    }
+	  }
+	  return matches;
 	};
 	
 	module.exports = PlayerStore;
@@ -33677,6 +33790,215 @@
 			window.classNames = classNames;
 		}
 	}());
+
+
+/***/ },
+/* 266 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React = __webpack_require__(1);
+	var ApiUtil = __webpack_require__(230);
+	var LinkedStateMixin = __webpack_require__(256);
+	var PlayerStore = __webpack_require__(262);
+	var fuzzy = __webpack_require__(267);
+	
+	var SearchBar = React.createClass({
+	  displayName: 'SearchBar',
+	
+	  mixins: [LinkedStateMixin],
+	  getInitialState: function () {
+	    return {
+	      allItems: PlayerStore.tags(),
+	      matches: []
+	    };
+	  },
+	
+	  componentDidMount: function () {
+	    this.playerToken = PlayerStore.addListener(this._playerOnChange);
+	  },
+	
+	  componentWillUnmount: function () {
+	    this.playerToken.remove();
+	  },
+	
+	  _playerOnChange: function () {
+	    this.setState({ allItems: PlayerStore.tags() });
+	  },
+	
+	  getResults: function (e) {
+	    var results = fuzzy.filter(e.target.value, this.state.allItems);
+	    var matches = [];
+	    if (e.target.value === "") {
+	      matches = PlayerStore.all();
+	      this.setState({ matches: matches });
+	    } else {
+	      matches = PlayerStore.findByTag(results.map(function (el) {
+	        return el.string;
+	      }));
+	      this.setState({ matches: matches });
+	    }
+	    this.props.onChange(matches);
+	  },
+	
+	  render: function () {
+	    return React.createElement(
+	      'div',
+	      { className: 'search-box' },
+	      React.createElement('input', { className: 'search-bar', type: 'search', placeholder: 'search players by tag', onChange: this.getResults })
+	    );
+	  }
+	});
+	
+	module.exports = SearchBar;
+
+/***/ },
+/* 267 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*
+	 * Fuzzy
+	 * https://github.com/myork/fuzzy
+	 *
+	 * Copyright (c) 2012 Matt York
+	 * Licensed under the MIT license.
+	 */
+	
+	(function() {
+	
+	var root = this;
+	
+	var fuzzy = {};
+	
+	// Use in node or in browser
+	if (true) {
+	  module.exports = fuzzy;
+	} else {
+	  root.fuzzy = fuzzy;
+	}
+	
+	// Return all elements of `array` that have a fuzzy
+	// match against `pattern`.
+	fuzzy.simpleFilter = function(pattern, array) {
+	  return array.filter(function(str) {
+	    return fuzzy.test(pattern, str);
+	  });
+	};
+	
+	// Does `pattern` fuzzy match `str`?
+	fuzzy.test = function(pattern, str) {
+	  return fuzzy.match(pattern, str) !== null;
+	};
+	
+	// If `pattern` matches `str`, wrap each matching character
+	// in `opts.pre` and `opts.post`. If no match, return null
+	fuzzy.match = function(pattern, str, opts) {
+	  opts = opts || {};
+	  var patternIdx = 0
+	    , result = []
+	    , len = str.length
+	    , totalScore = 0
+	    , currScore = 0
+	    // prefix
+	    , pre = opts.pre || ''
+	    // suffix
+	    , post = opts.post || ''
+	    // String to compare against. This might be a lowercase version of the
+	    // raw string
+	    , compareString =  opts.caseSensitive && str || str.toLowerCase()
+	    , ch;
+	
+	  pattern = opts.caseSensitive && pattern || pattern.toLowerCase();
+	
+	  // For each character in the string, either add it to the result
+	  // or wrap in template if it's the next string in the pattern
+	  for(var idx = 0; idx < len; idx++) {
+	    ch = str[idx];
+	    if(compareString[idx] === pattern[patternIdx]) {
+	      ch = pre + ch + post;
+	      patternIdx += 1;
+	
+	      // consecutive characters should increase the score more than linearly
+	      currScore += 1 + currScore;
+	    } else {
+	      currScore = 0;
+	    }
+	    totalScore += currScore;
+	    result[result.length] = ch;
+	  }
+	
+	  // return rendered string if we have a match for every char
+	  if(patternIdx === pattern.length) {
+	    // if the string is an exact match with pattern, totalScore should be maxed
+	    totalScore = (compareString === pattern) ? Infinity : totalScore;
+	    return {rendered: result.join(''), score: totalScore};
+	  }
+	
+	  return null;
+	};
+	
+	// The normal entry point. Filters `arr` for matches against `pattern`.
+	// It returns an array with matching values of the type:
+	//
+	//     [{
+	//         string:   '<b>lah' // The rendered string
+	//       , index:    2        // The index of the element in `arr`
+	//       , original: 'blah'   // The original element in `arr`
+	//     }]
+	//
+	// `opts` is an optional argument bag. Details:
+	//
+	//    opts = {
+	//        // string to put before a matching character
+	//        pre:     '<b>'
+	//
+	//        // string to put after matching character
+	//      , post:    '</b>'
+	//
+	//        // Optional function. Input is an entry in the given arr`,
+	//        // output should be the string to test `pattern` against.
+	//        // In this example, if `arr = [{crying: 'koala'}]` we would return
+	//        // 'koala'.
+	//      , extract: function(arg) { return arg.crying; }
+	//    }
+	fuzzy.filter = function(pattern, arr, opts) {
+	  if(!arr || arr.length === 0) {
+	    return [];
+	  }
+	  if (typeof pattern !== 'string') {
+	    return arr;
+	  }
+	  opts = opts || {};
+	  return arr
+	    .reduce(function(prev, element, idx, arr) {
+	      var str = element;
+	      if(opts.extract) {
+	        str = opts.extract(element);
+	      }
+	      var rendered = fuzzy.match(pattern, str, opts);
+	      if(rendered != null) {
+	        prev[prev.length] = {
+	            string: rendered.rendered
+	          , score: rendered.score
+	          , index: idx
+	          , original: element
+	        };
+	      }
+	      return prev;
+	    }, [])
+	
+	    // Sort by score. Browsers are inconsistent wrt stable/unstable
+	    // sorting, so force stable by using the index in the case of tie.
+	    // See http://ofb.net/~sethml/is-sort-stable.html
+	    .sort(function(a,b) {
+	      var compare = b.score - a.score;
+	      if(compare) return compare;
+	      return a.index - b.index;
+	    });
+	};
+	
+	
+	}());
+	
 
 
 /***/ }

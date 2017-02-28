@@ -21,4 +21,24 @@ PlayerStore.all = function() {
   return _players.slice();
 }
 
+PlayerStore.tags = function() {
+  var search = [];
+  for (var i = 0; i < _players.length; i++) {
+    search.push(_players[i].tag);
+  }
+  return search;
+};
+
+PlayerStore.findByTag = function(tags) {
+  var matches = [];
+  for (var i = 0; i < tags.length; i++) {
+    for (var j = 0; j < _players.length; j++) {
+      if(tags[i] === _players[j].tag) {
+        matches.push(_players[j]);
+      }
+    }
+  }
+  return matches;
+};
+
 module.exports = PlayerStore;

@@ -2,7 +2,75 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
+//main table
 
+.head, .row{
+  display: flex;           display: -webkit-flex;
+  flex-direction: row;     -webkit-flex-direction: row;
+  flex-grow: 0;            -webkit-flex-grow: 0;
+  flex-wrap: wrap;         -webkit-flex-wrap: wrap;
+  width: 80%;
+  padding-left: 15px;
+  padding-right: 15px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  font-size: 18px;
+  margin: 0 auto;
+}
+
+.head {
+  color: white;
+  background-color: #88282c;
+  border: 2px solid #7b3538;
+}
+
+.row {
+  border-bottom: 2px solid #e0e0e0;
+  border-left: 2px solid #e0e0e0;
+  border-right: 2px solid #e0e0e0;
+}
+
+.odd {
+  background-color: #EBEBEB;
+}
+
+.head-cell, .cell{
+  flex-grow: 1;            -webkit-flex-grow: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-align: center;
+  padding-right: 20px;
+  padding-left: 20px;
+  width: 200px;
+
+}
+
+.cell{
+  border-collapse: collapse;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.head-cell{
+  text-decoration: none;
+	text-shadow: none;
+	-webkit-transition: 250ms linear 0s;
+	-moz-transition: 250ms linear 0s;
+	-o-transition: 250ms linear 0s;
+	transition: 250ms linear 0s;
+	outline: 0 none;
+}
+
+.head-cell:hover{
+  cursor: pointer;
+  color: #fff;
+	text-shadow: -1px 1px 4px #ffc, 1px -1px 4px #fff;
+}
+
+
+
+//pagination
 .pagination{
   list-style: none;
   display: flex;
